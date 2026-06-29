@@ -17,6 +17,7 @@ export default function LoginPage() {
   const [fullName, setFullName] = useState('')
   const [showPwd, setShowPwd] = useState(false)
   const [loading, setLoading] = useState(false)
+  // 👇 Nouveau : 3 modes possibles au lieu de 2
   const [mode, setMode] = useState<Mode>('login')
 
   if (user) return <Navigate to="/dashboard" replace />
@@ -30,6 +31,7 @@ export default function LoginPage() {
     setLoading(false)
   }
 
+  // 👇 Nouveau : fonction d'inscription
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!email || !password || !fullName) return toast.error('Tous les champs sont obligatoires')
@@ -89,9 +91,12 @@ export default function LoginPage() {
         </div>
 
         <div className="bg-slate-800/80 border border-slate-700/50 rounded-3xl p-6 shadow-2xl backdrop-blur">
+          {/* 👇 Le titre change selon le mode */}
           <h2 className="text-lg font-bold text-white mb-5">{titles[mode]}</h2>
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+
+            {/* 👇 Champ nom — visible seulement en mode inscription */}
             {mode === 'register' && (
               <Input label="Nom complet" type="text" placeholder="Jean Dupont"
                 value={fullName} onChange={e => setFullName(e.target.value)}
@@ -102,6 +107,7 @@ export default function LoginPage() {
               value={email} onChange={e => setEmail(e.target.value)}
               icon={<Mail className="w-4 h-4" />} autoComplete="email" required />
 
+            {/* 👇 Mot de passe — caché en mode reset */}
             {mode !== 'reset' && (
               <Input label="Mot de passe" type={showPwd ? 'text' : 'password'} placeholder="••••••••"
                 value={password} onChange={e => setPassword(e.target.value)}
@@ -114,6 +120,7 @@ export default function LoginPage() {
                 autoComplete={mode === 'register' ? 'new-password' : 'current-password'} required />
             )}
 
+            {/* 👇 Confirmation — visible seulement en mode inscription */}
             {mode === 'register' && (
               <Input label="Confirmer le mot de passe" type={showPwd ? 'text' : 'password'} placeholder="••••••••"
                 value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)}
@@ -125,6 +132,7 @@ export default function LoginPage() {
             </Button>
           </form>
 
+          {/* 👇 Liens de navigation entre les modes */}
           <div className="mt-5 flex flex-col items-center gap-2">
             {mode === 'login' && (
               <>
@@ -149,6 +157,7 @@ export default function LoginPage() {
           </div>
         </div>
 
+        {/* 👇 Note visible seulement en mode inscription */}
         {mode === 'register' && (
           <div className="mt-4 bg-amber-500/10 border border-amber-500/20 rounded-2xl p-3">
             <p className="text-amber-400/80 text-xs text-center">
