@@ -2,6 +2,7 @@ import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { LayoutDashboard, QrCode, Search, ClipboardList, User } from 'lucide-react'
 import OfflineBanner from '@/components/ui/OfflineBanner'
 import { useAuthStore } from '@/stores/authStore'
+import { useEffect, useRef, useState } from 'react'
 
 const navItems = [
   { path: '/dashboard', icon: LayoutDashboard, label: 'Tableau' },
@@ -16,9 +17,28 @@ export default function Layout() {
   const navigate = useNavigate()
   const { profile } = useAuthStore()
 
+  // 👇 État pour l'animation : visible ou en train de disparaître
+  const [visible, setVisible] = useState(true)
+  const prevPath = useRef(location.pathname)
+
+  useEffect(() => {
+    if (prevPath.current === location.pathname) return
+
+    // 1. Fade out rapide (100ms)
+    setVisible(false)
+
+    // 2. Après le fade out, fade in sur la nouvelle page
+    const timer = setTimeout(() => {
+      prevPath.current = location.pathname
+      setVisible(true)
+    }, 100)
+
+    return () => clearTimeout(timer)
+  }, [location.pathname])
+
   return (
     <div className="min-h-screen bg-slate-900 flex flex-col">
-      {/* Top header */}
+      {/* Header */}
       <header className="bg-slate-900/95 backdrop-blur border-b border-slate-700/50 sticky top-0 z-40 pt-safe">
         <div className="max-w-2xl mx-auto px-4 h-14 flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -41,14 +61,22 @@ export default function Layout() {
 
       <OfflineBanner />
 
-      {/* Main content */}
+      {/* 👇 Contenu avec animation fade + légère remontée */}
       <main className="flex-1 overflow-y-auto pb-safe">
         <div className="max-w-2xl mx-auto">
-          <Outlet />
+          <div
+            style={{
+              opacity: visible ? 1 : 0,
+              transform: visible ? 'translateY(0px)' : 'translateY(6px)',
+              transition: 'opacity 180ms ease, transform 180ms ease'
+            }}
+          >
+            <Outlet />
+          </div>
         </div>
       </main>
 
-      {/* Bottom nav */}
+      {/* Nav bas */}
       <nav className="fixed bottom-0 left-0 right-0 z-40 bg-slate-900/95 backdrop-blur border-t border-slate-700/50" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
         <div className="max-w-2xl mx-auto grid grid-cols-5">
           {navItems.map(({ path, icon: Icon, label }) => {
