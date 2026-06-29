@@ -2,7 +2,6 @@ import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { LayoutDashboard, QrCode, Search, ClipboardList, User } from 'lucide-react'
 import OfflineBanner from '@/components/ui/OfflineBanner'
 import { useAuthStore } from '@/stores/authStore'
-import { useEffect, useRef, useState } from 'react'
 
 const navItems = [
   { path: '/dashboard', icon: LayoutDashboard, label: 'Tableau' },
@@ -16,25 +15,6 @@ export default function Layout() {
   const location = useLocation()
   const navigate = useNavigate()
   const { profile } = useAuthStore()
-
-  // 👇 État pour l'animation : visible ou en train de disparaître
-  const [visible, setVisible] = useState(true)
-  const prevPath = useRef(location.pathname)
-
-  useEffect(() => {
-    if (prevPath.current === location.pathname) return
-
-    // 1. Fade out rapide (100ms)
-    setVisible(false)
-
-    // 2. Après le fade out, fade in sur la nouvelle page
-    const timer = setTimeout(() => {
-      prevPath.current = location.pathname
-      setVisible(true)
-    }, 100)
-
-    return () => clearTimeout(timer)
-  }, [location.pathname])
 
   return (
     <div className="min-h-screen bg-slate-900 flex flex-col">
@@ -61,16 +41,11 @@ export default function Layout() {
 
       <OfflineBanner />
 
-      {/* 👇 Contenu avec animation fade + légère remontée */}
+      {/* 👇 La clé = pathname force React à recréer le div à chaque changement de page
+           ce qui redéclenche l'animation CSS à chaque fois */}
       <main className="flex-1 overflow-y-auto pb-safe">
         <div className="max-w-2xl mx-auto">
-          <div
-            style={{
-              opacity: visible ? 1 : 0,
-              transform: visible ? 'translateY(0px)' : 'translateY(6px)',
-              transition: 'opacity 180ms ease, transform 180ms ease'
-            }}
-          >
+          <div key={location.pathname} className="page-transition">
             <Outlet />
           </div>
         </div>
