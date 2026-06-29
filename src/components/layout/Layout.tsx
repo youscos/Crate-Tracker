@@ -2,6 +2,7 @@ import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { LayoutDashboard, QrCode, Search, ClipboardList, User } from 'lucide-react'
 import OfflineBanner from '@/components/ui/OfflineBanner'
 import { useAuthStore } from '@/stores/authStore'
+import { useState, useEffect } from 'react'
 
 const navItems = [
   { path: '/dashboard', icon: LayoutDashboard, label: 'Tableau' },
@@ -15,6 +16,23 @@ export default function Layout() {
   const location = useLocation()
   const navigate = useNavigate()
   const { profile } = useAuthStore()
+
+  // 👇 loading = true pendant 500ms à chaque changement de page
+  const [loading, setLoading] = useState(false)
+  const [displayPath, setDisplayPath] = useState(location.pathname)
+
+  useEffect(() => {
+    // 1. On affiche le spinner
+    setLoading(true)
+
+    // 2. Après 500ms on cache le spinner et on affiche la nouvelle page
+    const timer = setTimeout(() => {
+      setDisplayPath(location.pathname)
+      setLoading(false)
+    }, 500)
+
+    return () => clearTimeout(timer)
+  }, [location.pathname])
 
   return (
     <div className="min-h-screen bg-slate-900 flex flex-col">
@@ -41,13 +59,21 @@ export default function Layout() {
 
       <OfflineBanner />
 
-      {/* 👇 La clé = pathname force React à recréer le div à chaque changement de page
-           ce qui redéclenche l'animation CSS à chaque fois */}
       <main className="flex-1 overflow-y-auto pb-safe">
         <div className="max-w-2xl mx-auto">
-          <div key={location.pathname} className="page-transition">
-            <Outlet />
-          </div>
+
+          {/* 👇 Spinner pendant 500ms */}
+          {loading ? (
+            <div className="flex items-center justify-center h-64">
+              <div className="page-spinner" />
+            </div>
+          ) : (
+            /* 👇 Page qui apparaît avec un fade in après le spinner */
+            <div key={displayPath} className="page-transition">
+              <Outlet />
+            </div>
+          )}
+
         </div>
       </main>
 

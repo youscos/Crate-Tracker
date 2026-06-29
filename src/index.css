@@ -13,32 +13,35 @@ body {
   overscroll-behavior: none;
 }
 
-/* Scrollbar */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: #1E293B; }
 ::-webkit-scrollbar-thumb { background: #475569; border-radius: 3px; }
 
-/* PWA safe areas */
 .pb-safe { padding-bottom: calc(4rem + var(--safe-area-inset-bottom)); }
 .pt-safe { padding-top: calc(1rem + var(--safe-area-inset-top)); }
 
-/* Scanner */
 #qr-reader video { border-radius: 12px; }
 #qr-reader__scan_region { border-radius: 12px; }
 #qr-reader__dashboard { display: none !important; }
 
-/* 👇 Animation de transition entre les pages */
+/* Fade in après le spinner */
 @keyframes pageIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0px);
-  }
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0px); }
+}
+.page-transition {
+  animation: pageIn 250ms ease forwards;
 }
 
-.page-transition {
-  animation: pageIn 200ms ease forwards;
+/* 👇 Cercle de chargement amber */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+.page-spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid #334155;
+  border-top-color: #F59E0B;
+  border-radius: 50%;
+  animation: spin 600ms linear infinite;
 }
